@@ -111,4 +111,5 @@ revoke all on function public.record_inventory_movement(uuid,public.inventory_tr
 grant execute on function public.record_inventory_movement(uuid,public.inventory_transaction_type,integer,integer,uuid,uuid,text,text) to authenticated;
 revoke all on function public.record_employee_stock_use(uuid,integer,integer,text,text) from public;
 grant execute on function public.record_employee_stock_use(uuid,integer,integer,text,text) to authenticated;
+grant select on public.employee_inventory_detail to authenticated;
 commit;
