@@ -2,3 +2,5 @@
 .scan-field{display:flex;gap:8px;align-items:stretch}.scan-field input{flex:1;min-width:0}.scan-field button{white-space:nowrap}.scanner-modal{width:min(100%,620px)}#barcode-reader{width:100%;min-height:180px;margin:12px 0;border:1px dashed var(--line);border-radius:10px;overflow:hidden}#barcode-reader video{max-width:100%;border-radius:8px}.scanner-modal .message{margin:8px 0}@media(max-width:720px){.scan-field{flex-wrap:wrap}.scan-field button{width:100%}}
 
 .scan-field select{flex:1;min-width:0}.scan-field select+button{white-space:nowrap}
+
+.scanner-host{position:relative;z-index:10001}.scanner-host .modal-backdrop{z-index:10002}.scanner-host .scanner-modal{position:relative;max-height:90vh;overflow:auto}
