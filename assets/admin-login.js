@@ -1,4 +1,4 @@
-(()=> {
+(()=>{
  const cfg=window.FUEL_THE_FIRE_CONFIG||{};
  const form=document.querySelector("#admin-login-form");
  const msg=document.querySelector("#message");
@@ -17,10 +17,6 @@
      await db.auth.signOut();
      throw new Error("This account is not an active administrator. Ask an existing administrator to verify your role.");
    }
-   if(profile.must_change_password===true){
-     await db.auth.signOut();
-     throw new Error("This account requires a first-login password setup screen that has not yet been configured. Contact the system setup administrator.");
-   }
    return true;
  }
  db.auth.getSession().then(async ({data,error})=>{
@@ -28,7 +24,7 @@
    try{if(await verifyAdmin())location.replace("app.html");}catch(e){say(e.message);}
  });
  form.addEventListener("submit",async e=>{
-   e.preventDefault();btn.disabled=true;btn.textContent="Verifying administrator…";say("");
+   e.preventDefault();btn.disabled=true;btn.textContent="Signing in…";say("");
    try{
      const {error}=await db.auth.signInWithPassword({email:document.querySelector("#email").value.trim(),password:document.querySelector("#password").value});
      if(error)throw error;
