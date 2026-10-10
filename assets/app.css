@@ -4,3 +4,5 @@
 .scan-field select{flex:1;min-width:0}.scan-field select+button{white-space:nowrap}
 
 .scanner-host{position:relative;z-index:10001}.scanner-host .modal-backdrop{z-index:10002}.scanner-host .scanner-modal{position:relative;max-height:90vh;overflow:auto}
+
+.po-modal{width:min(980px,96vw);max-height:90vh;overflow:auto}.po-line{border:1px solid var(--line);border-radius:12px;padding:12px;margin:10px 0}.po-modal .section-head{display:flex;align-items:center;justify-content:space-between;gap:12px;margin:18px 0 8px}.po-modal .section-head h3{margin:0}.po-modal .table-wrap{margin:12px 0}.po-modal input[type=number]{min-width:80px}
