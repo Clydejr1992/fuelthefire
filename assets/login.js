@@ -7,19 +7,32 @@ if(!window.supabase||!cfg.SUPABASE_URL||!cfg.SUPABASE_ANON_KEY||cfg.SUPABASE_ANO
  say("Setup required: check the Supabase URL and public publishable/anon key in assets/config.js.");return;
 }
 const db=window.supabase.createClient(cfg.SUPABASE_URL,cfg.SUPABASE_ANON_KEY);
+async function verifyEmployee(){
+ const {data:{user},error:authError}=await db.auth.getUser();
+ if(authError||!user) return false;
+ const {data:profile,error}=await db.from("profiles").select("role,active").eq("id",user.id).maybeSingle();
+ if(error) throw new Error("Could not verify your Fuel the Fire profile.");
+ if(!profile||profile.active!==true){
+   await db.auth.signOut();
+   throw new Error("Your Fuel the Fire account is inactive or missing. Contact the administrator.");
+ }
+ if(profile.role==="admin"){
+   await db.auth.signOut();
+   throw new Error("Administrator accounts must sign in through the Administrator Sign In page.");
+ }
+ return true;
+}
 db.auth.getSession().then(async ({data,error})=>{
  if(error||!data.session)return;
- const {data:profile,error:pe}=await db.from("profiles").select("active").eq("id",data.session.user.id).maybeSingle();
- if(!pe&&profile&&profile.active!==false)location.replace("app.html");
+ try{if(await verifyEmployee())location.replace("app.html");}catch(e){say(e.message);}
 });
 form.addEventListener("submit",async event=>{
  event.preventDefault();const button=form.querySelector("button");button.disabled=true;button.textContent="Signing in…";say("");
  try{
-  const {data,error}=await db.auth.signInWithPassword({email:document.querySelector("#email").value.trim(),password:document.querySelector("#password").value});
+  const {error}=await db.auth.signInWithPassword({email:document.querySelector("#email").value.trim(),password:document.querySelector("#password").value});
   if(error)throw error;
-  const {data:profile,error:pe}=await db.from("profiles").select("active").eq("id",data.user.id).maybeSingle();
-  if(pe||!profile||profile.active===false){await db.auth.signOut();throw new Error("Your profile is missing or inactive. Contact the Fuel the Fire administrator.");}
-  location.replace("app.html");
- }catch(error){say(error.message||"Sign-in failed. Check your email and password.");button.disabled=false;button.textContent="Sign in securely"}
+  if(await verifyEmployee())location.replace("app.html");
+ }catch(error){say(error.message||"Sign-in failed. Check your email and password.");}
+ finally{button.disabled=false;button.textContent="Sign in securely";}
 });
 })();
