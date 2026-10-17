@@ -1,0 +1,28 @@
+{
+  "expo": {
+    "name": "Fuel the Fire",
+    "slug": "fuel-the-fire-mobile",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "userInterfaceStyle": "light",
+    "scheme": "fuelthefire",
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "site.fuelthefire.mobile"
+    },
+    "android": {
+      "package": "site.fuelthefire.mobile",
+      "permissions": [
+        "CAMERA"
+      ]
+    },
+    "plugins": [
+      [
+        "expo-camera",
+        {
+          "cameraPermission": "Allow Fuel the Fire to scan food product barcodes."
+        }
+      ]
+    ]
+  }
+}
