@@ -19,7 +19,7 @@
 <button id="cook-signout" class="secondary" type="button">Sign out</button>
 </header>
 <div id="cook-message" class="cook-message" role="status"></div>
-<div id="cook-security-note" class="cook-alert">Development preview only. This page is not live and cannot submit official reports until the database security review and submission RPC are complete.</div>
+<div id="cook-security-note" class="cook-alert">Cook access is restricted by the database. Reports do not change inventory balances.</div>
 <section class="cook-card">
 <h2>New meal report</h2>
 <div class="cook-grid">
@@ -30,12 +30,12 @@
 </div>
 </section>
 <section class="cook-card">
-<div class="cook-head"><div><h2>Food items</h2><p class="cook-muted">Enter quantities for each food item. Category totals will be calculated later.</p></div><button id="cook-add-item" class="secondary" type="button">+ Add food item</button></div>
+<div class="cook-head"><div><h2>Food items</h2><p class="cook-muted">Enter quantities for each food item. Save a draft as you work. Submitted reports are locked until an administrator returns them for correction.</p></div><button id="cook-add-item" class="secondary" type="button">+ Add food item</button></div>
 <div style="overflow-x:auto"><table class="cook-table"><thead><tr><th>Food item</th><th>Category</th><th>Offered</th><th>Reused</th><th>Waste</th><th>Unit</th><th></th></tr></thead><tbody id="cook-items"><tr class="cook-empty"><td colspan="7">Add the food items served for this meal.</td></tr></tbody></table></div>
-<div class="cook-actions"><button id="cook-save-draft" class="primary" type="button">Save draft (preview)</button><button id="cook-submit" class="secondary" type="button" disabled>Submit report (not enabled yet)</button></div>
-<p id="cook-save-note" class="cook-muted">Draft saving is disabled until the reviewed database migration is installed in a test project.</p>
+<div class="cook-actions"><button id="cook-save-draft" class="primary" type="button">Save draft</button><button id="cook-submit" class="secondary" type="button" disabled>Submit report</button><button id="cook-new-report" class="secondary" type="button">New report</button></div>
+<p id="cook-save-note" class="cook-muted">Drafts are saved under your account. Submitting sends the report to an administrator for review.</p>
 </section>
-<section class="cook-card"><h2>My recent reports</h2><p class="cook-muted">Reports will appear here after the secure report APIs are ready.</p><div id="cook-reports">No reports loaded.</div></section>
+<section class="cook-card"><h2>My recent reports</h2><p class="cook-muted">Your drafts, submitted reports, returned reports, and approved reports.</p><div id="cook-reports">Loading reports…</div></section>
 </main>
 <script src="assets/cook.js?v=cook-report-draft1"></script>
 </body></html>
