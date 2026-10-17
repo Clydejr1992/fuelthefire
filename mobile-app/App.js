@@ -86,7 +86,9 @@ export default function App() {
     Alert.alert("Password updated", "Your password has been changed.");
     await supabase.from("profiles").update({ must_change_password: false }).eq("id", session.user.id);
     const { data } = await supabase.from("profiles").select("*").eq("id", session.user.id).maybeSingle();
-    if (data) setProfile(data);\n  }\n
+    if (data) setProfile(data);
+  }
+
   async function signOut() {
     if (supabase) await supabase.auth.signOut();
     setPage("Home");
