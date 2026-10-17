@@ -68,7 +68,7 @@ create policy cook_school_assignment_events_admin_read on public.cook_school_ass
 
 create or replace function public.log_cook_school_assignment_event()
 returns trigger language plpgsql security definer set search_path=public
-as $
+as $$
 begin
  if tg_op='INSERT' then
    insert into public.cook_school_assignment_events(assignment_id,cook_id,school_id,actor_id,event_type)
