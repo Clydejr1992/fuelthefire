@@ -52,7 +52,7 @@ Deno.serve(async (req: Request) => {
   if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return respond(400, { error: "Enter a valid email address." });
   if (!full_name || full_name.length > 120) return respond(400, { error: "Full name is required (maximum 120 characters)." });
   if (password.length < 12) return respond(400, { error: "Temporary password must be at least 12 characters." });
-  if (!["employee", "manager"].includes(role)) return respond(400, { error: "Only employee or manager roles can be created here." });
+  if (!["employee", "manager", "cook"].includes(role)) return respond(400, { error: "Only employee, manager, or cook roles can be created here." });\n  if (role === "cook" && profile.role !== "admin") return respond(403, { error: "Only an administrator can create Cook accounts." });
 
   const { data: created, error: createError } = await adminClient.auth.admin.createUser({
     email,
