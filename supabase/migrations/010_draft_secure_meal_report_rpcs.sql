@@ -2,7 +2,8 @@
 -- Must be tested on a disposable database before any production rollout.
 begin;
 
--- Clients may read reports and assigned schools, but all writes go through narrow RPCs.\n
+-- Clients may read reports and assigned schools, but all writes go through narrow RPCs.
+
 -- Append-only history for report state and school assignment changes.
 create table if not exists public.meal_report_events (
  id uuid primary key default gen_random_uuid(),
