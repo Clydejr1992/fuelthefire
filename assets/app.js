@@ -108,7 +108,7 @@ async function mealReportsAdminPage(){
  };
  $("#mr-refresh").onclick=()=>mealReportsAdminPage().catch(e=>say(e.message,true));$("#mr-search").oninput=render;$("#mr-status").onchange=render;render();
 }
-\nasync function reportsPage(){
+async function reportsPage(){
  const r=await db.from("inventory_transactions").select("id,created_at,transaction_type,quantity_units,quantity_before,quantity_after,cases_delta,units_delta,reference,reason,notes,user_id,product_id,location_id").order("created_at",{ascending:false}).limit(1000);
  if(r.error)throw r.error;
  const rows=r.data||[],productById=new Map(products.map(p=>[p.id,p])),employeeById=new Map(employees.map(e=>[e.id,e.full_name||e.email||"Employee"]));
