@@ -17,12 +17,15 @@ export default function App() {
   const [products, setProducts] = useState([]);
   const [search, setSearch] = useState("");
   const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");\n  const [newPassword, setNewPassword] = useState("");\n  const [confirmPassword, setConfirmPassword] = useState("");
+  const [password, setPassword] = useState("");
+  const [newPassword, setNewPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
   const [scanning, setScanning] = useState(false);
   const [permission, requestPermission] = useCameraPermissions();
   const [lastScan, setLastScan] = useState("");
   const [barcodeHandled, setBarcodeHandled] = useState(false);
-  const [refreshing, setRefreshing] = useState(false);\n  const [authReady, setAuthReady] = useState(false);
+  const [refreshing, setRefreshing] = useState(false);
+  const [authReady, setAuthReady] = useState(false);
 
   useEffect(() => {
     if (!supabase) { setLoading(false); return; }
@@ -37,7 +40,8 @@ export default function App() {
   }, []);
 
   useEffect(() => {
-    if (!authReady) return;\n    if (!supabase || !session?.user) { setProfile(null); setProducts([]); return; }
+    if (!authReady) return;
+    if (!supabase || !session?.user) { setProfile(null); setProducts([]); return; }
     let alive = true;
     (async () => {
       const { data, error } = await supabase.from("profiles").select("*").eq("id", session.user.id).maybeSingle();
@@ -73,14 +77,25 @@ export default function App() {
     if (error) Alert.alert("Could not sign in", error.message);
   }
 
-  async function updatePassword() {\n    if (newPassword.length < 12) return Alert.alert("Password too short", "Use at least 12 characters.");\n    if (newPassword !== confirmPassword) return Alert.alert("Passwords do not match", "Enter the same password in both fields.");\n    const { error } = await supabase.auth.updateUser({ password: newPassword });\n    if (error) return Alert.alert("Could not update password", error.message);\n    setNewPassword(""); setConfirmPassword("");\n    Alert.alert("Password updated", "Your password has been changed.");\n    await supabase.from("profiles").update({ must_change_password: false }).eq("id", session.user.id);\n    const { data } = await supabase.from("profiles").select("*").eq("id", session.user.id).maybeSingle();\n    if (data) setProfile(data);\n  }\n\n  async function signOut() {
+  async function updatePassword() {
+    if (newPassword.length < 12) return Alert.alert("Password too short", "Use at least 12 characters.");
+    if (newPassword !== confirmPassword) return Alert.alert("Passwords do not match", "Enter the same password in both fields.");
+    const { error } = await supabase.auth.updateUser({ password: newPassword });
+    if (error) return Alert.alert("Could not update password", error.message);
+    setNewPassword(""); setConfirmPassword("");
+    Alert.alert("Password updated", "Your password has been changed.");
+    await supabase.from("profiles").update({ must_change_password: false }).eq("id", session.user.id);
+    const { data } = await supabase.from("profiles").select("*").eq("id", session.user.id).maybeSingle();
+    if (data) setProfile(data);\n  }\n
+  async function signOut() {
     if (supabase) await supabase.auth.signOut();
     setPage("Home");
     setScanning(false);
   }
 
   const visibleProducts = useMemo(() => products.filter(p => [p.name, p.barcode, p.sku, p.packaging].some(v => String(v || "").toLowerCase().includes(search.toLowerCase()))), [products, search]);
-  const isManager = ["admin", "manager"].includes(profile?.role);\n  const mustChangePassword = profile?.must_change_password === true;
+  const isManager = ["admin", "manager"].includes(profile?.role);
+  const mustChangePassword = profile?.must_change_password === true;
 
   function handleBarcode(result) {
     if (barcodeHandled) return;
