@@ -23,11 +23,6 @@
           "cameraPermission": "Allow Fuel the Fire to scan food product barcodes."
         }
       ]
-    ],
-    "extra": {
-      "eas": {
-        "projectId": "REPLACE_WITH_EAS_PROJECT_ID"
-      }
-    }
+    ]
   }
 }
