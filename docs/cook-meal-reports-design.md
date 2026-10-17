@@ -74,3 +74,18 @@ Existing migrations include inventory RPCs and broad application functionality. 
 - Production function deployment.
 - Publishing/merging this feature into `main`.
 - Automatic inventory balance changes from meal reports.
+
+
+## Development branch progress (2026-10-17)
+
+- Added a standalone `cook.html` preview and `assets/cook.js`. Draft save and submit remain disabled.
+- Updated the branch copy of `assets/app.js` so Cook accounts are routed to `cook.html` before inventory lists load, including after required password setup.
+- Added an administrator-only Cook School Assignments navigation entry and initial UI for adding school records and assigning/revoking multiple schools per cook.
+- Drafted an enum migration for the `cook` role and a separate meal-report/school-assignment migration.
+- Updated the branch copy of `admin-create-user` to allow Cook account creation only when the caller is an administrator. This function change has not been deployed.
+- Read-only inspection of the linked production schema showed `public.locations` currently contains `Main Storage`, so it is not being treated as the school catalog.
+- No migration has been applied, no Edge Function deployed, no branch merged, and no production site files changed.
+
+## Current blockers / safety notes
+
+The SQL draft is not production-ready. The role enum and the account-creation function must be coordinated; existing role-validation triggers and helper functions need review. Submission/approval must be implemented through restricted RPCs, not direct client updates. Every existing inventory RPC and table policy must be tested to ensure the Cook role cannot invoke inventory-changing operations. A non-production Supabase project/branch and dedicated test accounts are required before declaring this secure. The admin assignment UI will show database errors until the draft schema is installed in a test environment.
