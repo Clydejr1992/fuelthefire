@@ -69,7 +69,7 @@ async function cookAssignmentsPage(){
  $("#page-content").innerHTML='<div class="panel"><div class="panel-head"><div><h2>Cook school assignments</h2><p class="small">Assign each cook to one or more schools. Only administrators can manage these assignments.</p></div><button class="primary" id="ca-refresh">Refresh</button></div><div class="form-grid"><div><label for="ca-cook">Cook account</label><select id="ca-cook"><option value="">Choose cook</option>'+cooks.map(c=>'<option value="'+esc(c.id)+'">'+esc(c.full_name||c.email||"Unnamed cook")+' — '+esc(c.email||"")+'</option>').join("")+'</select></div><div><label for="ca-school-name">Add a school</label><input id="ca-school-name" maxlength="160" placeholder="School name"><button class="secondary" id="ca-add-school" style="margin-top:8px">Add school</button></div></div><div id="ca-assignments" style="margin-top:18px"><p class="muted">Choose a cook to view assignments.</p></div><p id="ca-message" class="message"></p></div><div class="panel"><h2>Current assignments</h2>'+table(["Cook","School","Assigned","Status"],assignments.map(a=>{const co=cooks.find(x=>x.id===a.cook_id),sc=schools.find(x=>x.id===a.school_id);return[esc(co?.full_name||co?.email||"Unknown cook"),esc(sc?.name||"Inactive/unknown school"),new Date(a.created_at).toLocaleDateString(),'<span class="pill">Active</span>']}))+'</div>';
  const setMsg=(s,bad=false)=>msg("ca-message",s,bad);
  $("#ca-refresh").onclick=()=>cookAssignmentsPage().catch(e=>say(e.message,true));
- $("#ca-add-school").onclick=async()=>{const name=$("#ca-school-name").value.trim();if(!name){setMsg("Enter a school name.",true);return}const b=$("#ca-add-school");b.disabled=true;try{const r=await db.from("schools").insert({name,active:true});if(r.error)throw r.error;setMsg("School added.");await cookAssignmentsPage()}catch(e){setMsg(e.message||"Could not add school.",true);b.disabled=false}};
+ $("#ca-add-school").onclick=async()=>{const name=$("#ca-school-name").value.trim();if(!name){setMsg("Enter a school name.",true);return}const b=$("#ca-add-school");b.disabled=true;try{const r=await db.rpc("admin_save_school",{p_school_id:null,p_name:name,p_active:true});if(r.error)throw r.error;setMsg("School added.");await cookAssignmentsPage()}catch(e){setMsg(e.message||"Could not add school.",true);b.disabled=false}};
  const select=$("#ca-cook"),area=$("#ca-assignments");
  select.onchange=()=>{
   const id=select.value;if(!id){area.innerHTML='<p class="muted">Choose a cook to view assignments.</p>';return}
@@ -78,8 +78,8 @@ async function cookAssignmentsPage(){
   $("#ca-save").onclick=async()=>{
    const b=$("#ca-save");b.disabled=true;const chosen=new Set([...area.querySelectorAll(".ca-school-check:checked")].map(x=>x.value));const existing=assignments.filter(a=>a.cook_id===id);
    try{
-    for(const a of existing){if(!chosen.has(a.school_id)){const r=await db.from("cook_school_assignments").update({revoked_at:new Date().toISOString()}).eq("id",a.id);if(r.error)throw r.error}}
-    for(const schoolId of chosen){if(!existing.some(a=>a.school_id===schoolId)){const r=await db.from("cook_school_assignments").insert({cook_id:id,school_id:schoolId,assigned_by:user.id});if(r.error)throw r.error}}
+    for(const a of existing){if(!chosen.has(a.school_id)){const r=await db.rpc("admin_assign_cook_school",{p_cook_id:id,p_school_id:a.school_id,p_assign:false});if(r.error)throw r.error}}
+    for(const schoolId of chosen){if(!existing.some(a=>a.school_id===schoolId)){const r=await db.rpc("admin_assign_cook_school",{p_cook_id:id,p_school_id:schoolId,p_assign:true});if(r.error)throw r.error}}
     setMsg("Assignments saved.");await cookAssignmentsPage();
    }catch(e){setMsg(e.message||"Could not save assignments.",true);b.disabled=false}
   };
