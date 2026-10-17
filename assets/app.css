@@ -112,12 +112,17 @@ tbody tr:last-child td{border-bottom:0}tbody tr:hover{background:#f8fbf8}
  body.printing-selected-section #employee-inventory-print,
  body.printing-selected-section #employee-inventory-print *,
  body.printing-selected-section #products-list-print,
- body.printing-selected-section #products-list-print * { visibility:visible!important; }
+ body.printing-selected-section #products-list-print *,
+ body.printing-selected-section #reports-history-print,
+ body.printing-selected-section #reports-history-print * { visibility:visible!important; }
  body.printing-selected-section #employee-inventory-print,
- body.printing-selected-section #products-list-print { position:absolute!important; left:0!important; top:0!important; width:100%!important; margin:0!important; padding:0!important; border:0!important; box-shadow:none!important; background:#fff!important; color:#000!important; }
+ body.printing-selected-section #products-list-print,
+ body.printing-selected-section #reports-history-print { position:absolute!important; left:0!important; top:0!important; width:100%!important; margin:0!important; padding:0!important; border:0!important; box-shadow:none!important; background:#fff!important; color:#000!important; }
  body.printing-selected-section .no-print,
  body.printing-selected-section #products-list-print .toolbar,
- body.printing-selected-section #products-list-print #addlist { display:none!important; }
+ body.printing-selected-section #products-list-print #addlist,
+ body.printing-selected-section #reports-history-print .quick-actions,
+ body.printing-selected-section #reports-history-print .toolbar { display:none!important; }
  body.printing-selected-section table { width:100%!important; border-collapse:collapse!important; }
  body.printing-selected-section th, body.printing-selected-section td { border:1px solid #999!important; padding:6px!important; color:#000!important; }
 }
