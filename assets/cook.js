@@ -13,7 +13,7 @@ async function init(){
  $("#cook-identity").textContent=(profile.full_name||profile.email)+" • Cook";
  if(profile.must_change_password){say("Please finish password setup from the main app before using Cook reports.",true);location.replace("app.html");return}
  $("#cook-date").value=new Date().toLocaleDateString("en-CA");
- $("#cook-add-item").onclick=addItem;
+ $("#cook-add-item").onclick=addItem;$("#cook-scan-item").onclick=scanItemForReport;
  $("#cook-signout").onclick=async()=>{await db.auth.signOut();location.replace("index.html")};
  $("#cook-save-draft").onclick=saveDraft;$("#cook-submit").onclick=submitReport;
  $("#cook-new-report").onclick=resetForm;
@@ -27,6 +27,44 @@ async function loadAssignedSchools(){
  sel.innerHTML='<option value="">Choose assigned school</option>'+rows.map(a=>'<option value="'+esc(a.school_id)+'">'+esc(a.schools.name)+'</option>').join("");
  if(!rows.length)say("No active school assignments yet. Ask an administrator to assign your schools.");
 }
+
+async function scanItemForReport(){
+ const button=$("#cook-scan-item");button.disabled=true;
+ const root=document.createElement("div");root.className="scanner-host";root.id="cook-barcode-scanner";
+ root.innerHTML='<div class="modal-backdrop"><div class="modal scanner-modal"><div class="modal-top"><h2>Scan food item barcode</h2><button type="button" class="close" id="cook-scan-close">×</button></div><p class="small">Point the rear camera at a UPC/EAN barcode. If the product is listed in the food database, its name and package size will be imported. You can enter the name manually if it is not found.</p><div id="cook-barcode-reader"></div><div class="form-actions"><button type="button" class="secondary" id="cook-scan-torch" disabled>🔦 Flashlight unavailable</button></div><p id="cook-scan-status" class="message">Starting camera…</p><form id="cook-scan-manual"><label>Barcode / UPC</label><div class="scan-field"><input id="cook-scan-code" autocomplete="off" placeholder="Scan or type barcode" required><button class="primary">Look up item</button></div></form></div></div>';
+ document.body.appendChild(root);
+ let reader=null,closed=false,torchOn=false,torchSupported=false;
+ const status=root.querySelector("#cook-scan-status");
+ const setStatus=(s,bad=false)=>{status.textContent=s;status.className="message"+(bad?" error":"");};
+ const close=async()=>{if(closed)return;closed=true;if(reader){try{await reader.stop()}catch(_){}try{reader.clear()}catch(_){}}root.remove();button.disabled=false;};
+ const importCode=async(code)=>{
+  code=String(code||"").trim();if(!code)return;
+  setStatus("Looking up barcode…");
+  const fields="product_name,product_name_en,product_name_with_brand,abbreviated_product_name,generic_name,brands,quantity,code";
+  let found=null;
+  const codes=[code];if(/^\d{8,14}$/.test(code)){const noZero=code.replace(/^0+(?=\d)/,"");if(noZero!==code)codes.push(noZero);if(/^0\d{12}$/.test(code))codes.push(code.slice(1));}
+  for(const c of [...new Set(codes)]){for(const version of ["v3","v2"]){try{const url=version==="v3"?"https://world.openfoodfacts.org/api/v3/product/"+encodeURIComponent(c)+".json?fields="+fields:"https://world.openfoodfacts.org/api/v2/product/"+encodeURIComponent(c)+".json?fields="+fields;const res=await fetch(url,{headers:{Accept:"application/json"}});if(!res.ok)continue;const data=await res.json();if(data.status===1&&data.product){const p=data.product;const n=String(p.product_name_en||p.product_name||p.product_name_with_brand||p.abbreviated_product_name||p.generic_name||"").trim();const brand=String(p.brands||"").split(",")[0].trim();found={name:n?(brand&&!n.toLowerCase().includes(brand.toLowerCase())?brand+" "+n:n):"",quantity:String(p.quantity||"").trim()};if(found.name)break;}}catch(_){}}if(found?.name)break;}
+  await close();
+  if(found?.name){addItem({item_name:found.name,category:"Other",unit_name:"servings"});const rows=[...$("#cook-items").querySelectorAll("tr")].filter(tr=>tr.querySelector(".item-name"));const tr=rows[rows.length-1];tr.querySelector(".item-name").focus();say("Imported "+found.name+" from the barcode lookup. Verify the item and enter the quantities for this meal.");}
+  else{const name=window.prompt("This barcode was not found in the online product database. Enter the food item name:");if(name&&name.trim()){addItem({item_name:name.trim(),category:"Other",unit_name:"servings"});const rows=[...$("#cook-items").querySelectorAll("tr")].filter(tr=>tr.querySelector(".item-name"));rows[rows.length-1].querySelector(".item-name").focus();say("Food item added. The barcode was not matched online, so please verify the name.");}else say("Barcode "+code+" was not found. Add the food item manually or try another scan.",true);}
+ };
+ root.querySelector("#cook-scan-close").onclick=()=>close();
+ root.querySelector("#cook-scan-torch").onclick=async()=>{if(!reader||!torchSupported)return;try{torchOn=!torchOn;await reader.applyVideoConstraints({advanced:[{torch:torchOn}]});root.querySelector("#cook-scan-torch").textContent=torchOn?"🔦 Turn flashlight off":"🔦 Turn flashlight on";setStatus(torchOn?"Flashlight is on.":"Flashlight is off.");}catch(_){setStatus("This camera does not support flashlight control. Use your phone flashlight.",true);}};
+ root.querySelector("#cook-scan-manual").onsubmit=e=>{e.preventDefault();const code=root.querySelector("#cook-scan-code").value.trim();if(code)void importCode(code);};
+ try{
+  if(!window.Html5Qrcode){await new Promise((resolve,reject)=>{const existing=document.querySelector("script[data-html5-qrcode]");if(existing){existing.addEventListener("load",resolve,{once:true});existing.addEventListener("error",reject,{once:true});return;}const s=document.createElement("script");s.src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js";s.async=true;s.dataset.html5Qrcode="true";s.onload=resolve;s.onerror=()=>reject(Error("Camera scanner could not load. Check your connection."));document.head.appendChild(s);});}
+  if(closed)return;if(!window.Html5Qrcode)throw Error("Camera scanner did not load.");
+  const formats=[Html5QrcodeSupportedFormats.EAN_13,Html5QrcodeSupportedFormats.EAN_8,Html5QrcodeSupportedFormats.UPC_A,Html5QrcodeSupportedFormats.UPC_E,Html5QrcodeSupportedFormats.CODE_128,Html5QrcodeSupportedFormats.CODE_39,Html5QrcodeSupportedFormats.ITF];
+  reader=new Html5Qrcode("cook-barcode-reader");
+  const decoded=async text=>{if(closed)return;root.querySelector("#cook-scan-code").value=String(text||"").trim();await importCode(text);};
+  try{await reader.start({facingMode:"environment"},{fps:15,qrbox:{width:280,height:120},formatsToSupport:formats},decoded);}
+  catch(first){try{try{reader.clear()}catch(_){}reader=new Html5Qrcode("cook-barcode-reader");const cameras=await Html5Qrcode.getCameras();if(!cameras?.length)throw first;const cam=cameras.find(c=>/back|rear|environment|main/i.test(c.label||""))||cameras[cameras.length-1];await reader.start(cam.id,{fps:15,qrbox:{width:280,height:120},formatsToSupport:formats},decoded);}catch(second){throw Error((second.message||first.message||"Camera could not start.")+" Open the site in Safari, allow camera access, and reload.");}}
+  try{torchSupported=!!reader.getRunningTrackCapabilities?.().torch;}catch(_){}
+  const torch=root.querySelector("#cook-scan-torch");torch.disabled=!torchSupported;torch.textContent=torchSupported?"🔦 Turn flashlight on":"🔦 Flashlight not supported";
+  setStatus("Camera ready. Hold the barcode steady inside the scan box.");
+ }catch(e){setStatus((e.message||"Camera could not start.")+" You can type the barcode above instead.",true);}
+}
+
 function itemRows(){return [...$("#cook-items").querySelectorAll("tr")].filter(tr=>tr.querySelector(".item-name")).map(tr=>({
  item_name:tr.querySelector(".item-name").value.trim(),category:tr.querySelector(".item-category").value.trim()||"Other",
  quantity_offered:Number(tr.querySelector(".item-offered").value),quantity_reused:Number(tr.querySelector(".item-reused").value),
