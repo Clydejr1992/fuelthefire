@@ -27,7 +27,7 @@ create policy meal_report_events_cook_read on public.meal_report_events for sele
 
 create or replace function public.log_meal_report_event()
 returns trigger language plpgsql security definer set search_path=public
-as $
+as $$
 declare
  v_event text;
 begin
@@ -47,7 +47,7 @@ begin
  end if;
  return new;
 end;
-$;
+$$;
 drop trigger if exists meal_report_event_log on public.meal_reports;
 create trigger meal_report_event_log after insert or update on public.meal_reports for each row execute function public.log_meal_report_event();
 
@@ -79,7 +79,7 @@ begin
  end if;
  return new;
 end;
-$;
+$$;
 drop trigger if exists cook_school_assignment_event_log on public.cook_school_assignments;
 create trigger cook_school_assignment_event_log after insert or update of revoked_at on public.cook_school_assignments for each row execute function public.log_cook_school_assignment_event();
 
