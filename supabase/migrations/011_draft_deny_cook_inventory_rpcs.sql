@@ -1,6 +1,7 @@
 -- DRAFT ONLY. Do not apply to production.
--- Adds a server-side Cook-role denial to existing inventory-changing SECURITY DEFINER RPCs.
--- Must be reviewed against the current production schema and tested on a disposable local DB.
+-- Adds a server-side Cook-role denial to the two known inventory-changing SECURITY DEFINER RPCs.
+-- Inventory transaction inserts match the current schema observed in the active Supabase project.
+-- Must still be tested on a disposable database; do not apply directly to production.
 begin;
 
 create or replace function public.record_inventory_movement(
@@ -42,12 +43,12 @@ begin
  elsif p_movement_type='count' then v_next:=v_qty;
  else raise exception 'Unsupported movement type'; end if;
  update public.products set cases_on_hand=v_next/v_upc,units_on_hand=mod(v_next,v_upc),updated_at=now() where id=p_product_id;
- insert into public.inventory_transactions(user_id,product_id,transaction_type,quantity_units,cases_delta,units_delta,reference,notes,location_id)
- values(auth.uid(),p_product_id,p_movement_type,
-  case when p_movement_type='count' then v_next else v_qty end,
+ insert into public.inventory_transactions(user_id,product_id,transaction_type,quantity_units,quantity_before,quantity_after,cases_delta,units_delta,reference,reason,notes,location_id)
+ values(auth.uid(),p_product_id,p_movement_type::text::public.transaction_type,
+  case when p_movement_type='count' then v_next else v_qty end,v_current,v_next,
   case when p_movement_type='receive' then p_cases when p_movement_type in ('use','waste','transfer') then -p_cases else 0 end,
   case when p_movement_type='receive' then p_loose_units when p_movement_type in ('use','waste','transfer') then -p_loose_units else 0 end,
-  p_reference,p_notes,p_location_id);
+  p_reference,p_movement_type::text,p_notes,p_location_id);
  if p_movement_type='transfer' then
    select * into v_assignment from public.employee_inventory where employee_id=p_employee_id and product_id=p_product_id and location_id is not distinct from p_location_id for update;
    if found then
@@ -84,8 +85,8 @@ begin
  if v_qty>v_current then raise exception 'Not enough assigned stock'; end if;
  v_next:=v_current-v_qty;
  update public.employee_inventory set cases_on_hand=v_next/v_upc,units_on_hand=mod(v_next,v_upc),updated_at=now() where id=v_row.id;
- insert into public.inventory_transactions(user_id,product_id,transaction_type,quantity_units,cases_delta,units_delta,reference,notes,location_id)
- values(auth.uid(),v_row.product_id,'use',-v_qty,-p_cases,-p_loose_units,p_reference,concat('Employee-held stock use. ',coalesce(p_notes,'')),v_row.location_id);
+ insert into public.inventory_transactions(user_id,product_id,transaction_type,quantity_units,quantity_before,quantity_after,cases_delta,units_delta,reference,reason,notes,location_id)
+ values(auth.uid(),v_row.product_id,'use',-v_qty,v_current,v_next,-p_cases,-p_loose_units,p_reference,'employee_stock_use',concat('Employee-held stock use. ',coalesce(p_notes,'')),v_row.location_id);
  insert into public.audit_logs(user_id,action,entity_type,entity_id,metadata)
  values(auth.uid(),'employee_stock_use','employee_inventory',v_row.id,jsonb_build_object('employee_id',v_row.employee_id,'product_id',v_row.product_id,'product_name',v_product.name,'quantity_units',v_qty,'reference',p_reference,'notes',p_notes));
  return jsonb_build_object('success',true,'remaining_units',v_next);
