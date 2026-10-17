@@ -22,22 +22,22 @@ export default function App() {
   const [permission, requestPermission] = useCameraPermissions();
   const [lastScan, setLastScan] = useState("");
   const [barcodeHandled, setBarcodeHandled] = useState(false);
-  const [refreshing, setRefreshing] = useState(false);
+  const [refreshing, setRefreshing] = useState(false);\n  const [authReady, setAuthReady] = useState(false);
 
   useEffect(() => {
     if (!supabase) { setLoading(false); return; }
     let alive = true;
     supabase.auth.getSession().then(({ data }) => {
-      if (alive) { setSession(data.session); setLoading(false); }
+      if (alive) { setSession(data.session); setAuthReady(true); setLoading(false); }
     }).catch(() => alive && setLoading(false));
     const { data: listener } = supabase.auth.onAuthStateChange((_event, nextSession) => {
-      if (alive) setSession(nextSession);
+      if (alive) { setSession(nextSession); setAuthReady(true); }
     });
     return () => { alive = false; listener.subscription.unsubscribe(); };
   }, []);
 
   useEffect(() => {
-    if (!supabase || !session?.user) { setProfile(null); setProducts([]); return; }
+    if (!authReady) return;\n    if (!supabase || !session?.user) { setProfile(null); setProducts([]); return; }
     let alive = true;
     (async () => {
       const { data, error } = await supabase.from("profiles").select("*").eq("id", session.user.id).maybeSingle();
@@ -51,7 +51,7 @@ export default function App() {
       await loadProducts(alive);
     })().catch((e) => { if (alive) Alert.alert("Could not load account", e.message || "Please try again."); });
     return () => { alive = false; };
-  }, [session?.user?.id]);
+  }, [session?.user?.id, authReady]);
 
   async function loadProducts(alive = true) {
     if (!supabase) return;
@@ -92,7 +92,7 @@ export default function App() {
     Alert.alert("Barcode scanned", match ? `Found: ${match.name}` : `Scanned ${code}. No matching product is currently in the loaded inventory.`, [{ text: "OK" }]);
   }
 
-  if (loading) return <SafeAreaView style={styles.center}><ActivityIndicator size="large" color={green} /><Text style={styles.muted}>Loading Fuel the Fire…</Text></SafeAreaView>;
+  if (loading || (session && !profile && authReady)) return <SafeAreaView style={styles.center}><ActivityIndicator size="large" color={green} /><Text style={styles.muted}>Loading Fuel the Fire…</Text></SafeAreaView>;
 
   if (!session || !profile) return <SafeAreaView style={styles.authScreen}><StatusBar barStyle="light-content" /><View style={styles.brandRow}><View style={styles.brandIcon}><Text style={styles.flame}>🔥</Text></View><View><Text style={styles.brandTitle}>Fuel the Fire</Text><Text style={styles.brandSubtitle}>SCHOOL FOOD SERVICE</Text></View></View><View style={styles.authCard}><Text style={styles.eyebrow}>WELCOME BACK</Text><Text style={styles.hero}>Your inventory,{"\n"}in your hands.</Text><Text style={styles.authCopy}>Sign in with your existing Fuel the Fire account.</Text><Text style={styles.label}>Email</Text><TextInput value={email} onChangeText={setEmail} autoCapitalize="none" keyboardType="email-address" autoComplete="email" placeholder="you@school.org" style={styles.input} /><Text style={styles.label}>Password</Text><TextInput value={password} onChangeText={setPassword} secureTextEntry autoComplete="password" placeholder="Your password" style={styles.input} onSubmitEditing={signIn} /><Pressable onPress={signIn} style={styles.primaryButton}><Text style={styles.primaryButtonText}>Sign in securely</Text></Pressable><Text style={styles.footnote}>Your existing account permissions still apply. The app does not create demo products or sample inventory.</Text></View><Text style={styles.configNote}>{supabase ? "Connected to Fuel the Fire sign-in" : "App project created — local Supabase app configuration is required before sign-in."}</Text></SafeAreaView>;
 
