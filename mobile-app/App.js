@@ -17,7 +17,7 @@ export default function App() {
   const [products, setProducts] = useState([]);
   const [search, setSearch] = useState("");
   const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
+  const [password, setPassword] = useState("");\n  const [newPassword, setNewPassword] = useState("");\n  const [confirmPassword, setConfirmPassword] = useState("");
   const [scanning, setScanning] = useState(false);
   const [permission, requestPermission] = useCameraPermissions();
   const [lastScan, setLastScan] = useState("");
@@ -73,14 +73,14 @@ export default function App() {
     if (error) Alert.alert("Could not sign in", error.message);
   }
 
-  async function signOut() {
+  async function updatePassword() {\n    if (newPassword.length < 12) return Alert.alert("Password too short", "Use at least 12 characters.");\n    if (newPassword !== confirmPassword) return Alert.alert("Passwords do not match", "Enter the same password in both fields.");\n    const { error } = await supabase.auth.updateUser({ password: newPassword });\n    if (error) return Alert.alert("Could not update password", error.message);\n    setNewPassword(""); setConfirmPassword("");\n    Alert.alert("Password updated", "Your password has been changed.");\n    await supabase.from("profiles").update({ must_change_password: false }).eq("id", session.user.id);\n    const { data } = await supabase.from("profiles").select("*").eq("id", session.user.id).maybeSingle();\n    if (data) setProfile(data);\n  }\n\n  async function signOut() {
     if (supabase) await supabase.auth.signOut();
     setPage("Home");
     setScanning(false);
   }
 
   const visibleProducts = useMemo(() => products.filter(p => [p.name, p.barcode, p.sku, p.packaging].some(v => String(v || "").toLowerCase().includes(search.toLowerCase()))), [products, search]);
-  const isManager = ["admin", "manager"].includes(profile?.role);
+  const isManager = ["admin", "manager"].includes(profile?.role);\n  const mustChangePassword = profile?.must_change_password === true;
 
   function handleBarcode(result) {
     if (barcodeHandled) return;
@@ -93,6 +93,8 @@ export default function App() {
   }
 
   if (loading || (session && !profile && authReady)) return <SafeAreaView style={styles.center}><ActivityIndicator size="large" color={green} /><Text style={styles.muted}>Loading Fuel the Fire…</Text></SafeAreaView>;
+
+  if (session && profile && mustChangePassword) return <SafeAreaView style={styles.authScreen}><StatusBar barStyle="light-content" /><View style={styles.brandRow}><View style={styles.brandIcon}><Text style={styles.flame}>🔥</Text></View><View><Text style={styles.brandTitle}>Fuel the Fire</Text><Text style={styles.brandSubtitle}>ACCOUNT SECURITY</Text></View></View><View style={styles.authCard}><Text style={styles.eyebrow}>ONE-TIME SETUP</Text><Text style={styles.hero}>Set your password.</Text><Text style={styles.authCopy}>Choose a permanent password before entering inventory. Use at least 12 characters.</Text><Text style={styles.label}>New password</Text><TextInput value={newPassword} onChangeText={setNewPassword} secureTextEntry autoComplete="new-password" placeholder="At least 12 characters" style={styles.input} /><Text style={styles.label}>Confirm new password</Text><TextInput value={confirmPassword} onChangeText={setConfirmPassword} secureTextEntry autoComplete="new-password" placeholder="Enter it again" style={styles.input} onSubmitEditing={updatePassword} /><Pressable onPress={updatePassword} style={styles.primaryButton}><Text style={styles.primaryButtonText}>Save password</Text></Pressable><Pressable onPress={signOut} style={styles.refreshButton}><Text style={styles.secondaryText}>Sign out</Text></Pressable></View></SafeAreaView>;
 
   if (!session || !profile) return <SafeAreaView style={styles.authScreen}><StatusBar barStyle="light-content" /><View style={styles.brandRow}><View style={styles.brandIcon}><Text style={styles.flame}>🔥</Text></View><View><Text style={styles.brandTitle}>Fuel the Fire</Text><Text style={styles.brandSubtitle}>SCHOOL FOOD SERVICE</Text></View></View><View style={styles.authCard}><Text style={styles.eyebrow}>WELCOME BACK</Text><Text style={styles.hero}>Your inventory,{"\n"}in your hands.</Text><Text style={styles.authCopy}>Sign in with your existing Fuel the Fire account.</Text><Text style={styles.label}>Email</Text><TextInput value={email} onChangeText={setEmail} autoCapitalize="none" keyboardType="email-address" autoComplete="email" placeholder="you@school.org" style={styles.input} /><Text style={styles.label}>Password</Text><TextInput value={password} onChangeText={setPassword} secureTextEntry autoComplete="password" placeholder="Your password" style={styles.input} onSubmitEditing={signIn} /><Pressable onPress={signIn} style={styles.primaryButton}><Text style={styles.primaryButtonText}>Sign in securely</Text></Pressable><Text style={styles.footnote}>Your existing account permissions still apply. The app does not create demo products or sample inventory.</Text></View><Text style={styles.configNote}>{supabase ? "Connected to Fuel the Fire sign-in" : "App project created — local Supabase app configuration is required before sign-in."}</Text></SafeAreaView>;
 
