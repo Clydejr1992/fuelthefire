@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <meta name="theme-color" content="#123b32">
 <title>Cook Meal Reports | Fuel the Fire</title>
-<link rel="stylesheet" href="assets/app.css?v=cook-report-fixes1">
+<link rel="stylesheet" href="assets/app.css?v=20261017-cook-barcode-scan">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="assets/config.js"></script>
 <style>
@@ -30,12 +30,12 @@
 </div>
 </section>
 <section class="cook-card">
-<div class="cook-head"><div><h2>Food items</h2><p class="cook-muted">Enter quantities for each food item. Save a draft as you work. Submitted reports are locked until an administrator returns them for correction.</p></div><button id="cook-add-item" class="secondary" type="button">+ Add food item</button></div>
+<div class="cook-head"><div><h2>Food items</h2><p class="cook-muted">Enter quantities for each food item. Save a draft as you work. Submitted reports are locked until an administrator returns them for correction.</p></div><div class="cook-actions" style="margin-top:0"><button id="cook-scan-item" class="primary" type="button">📷 Scan barcode to add item</button><button id="cook-add-item" class="secondary" type="button">+ Add food item</button></div></div>
 <div style="overflow-x:auto"><table class="cook-table"><thead><tr><th>Food item</th><th>Category</th><th>Offered</th><th>Reused</th><th>Waste</th><th>Unit</th><th></th></tr></thead><tbody id="cook-items"><tr class="cook-empty"><td colspan="7">Add the food items served for this meal.</td></tr></tbody></table></div>
 <div class="cook-actions"><button id="cook-save-draft" class="primary" type="button">Save draft</button><button id="cook-submit" class="secondary" type="button" disabled>Submit report</button><button id="cook-new-report" class="secondary" type="button">New report</button></div>
 <p id="cook-save-note" class="cook-muted">Drafts are saved under your account. Submitting sends the report to an administrator for review.</p>
 </section>
 <section class="cook-card"><h2>My recent reports</h2><p class="cook-muted">Your drafts, submitted reports, returned reports, and approved reports.</p><div id="cook-reports">Loading reports…</div></section>
 </main>
-<datalist id="cook-category-options"><option value="Reimbursement"></option><option value="Fruit"></option><option value="Vegetable"></option><option value="Grain"></option><option value="Protein"></option><option value="Milk"></option><option value="Other"></option></datalist><script src="assets/cook.js?v=cook-report-fixes1"></script>
+<datalist id="cook-category-options"><option value="Reimbursement"></option><option value="Fruit"></option><option value="Vegetable"></option><option value="Grain"></option><option value="Protein"></option><option value="Milk"></option><option value="Other"></option></datalist><script src="assets/cook.js?v=20261017-cook-barcode-scan"></script>
 </body></html>
