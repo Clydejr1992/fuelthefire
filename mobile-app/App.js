@@ -84,7 +84,11 @@ export default function App() {
     if (error) return Alert.alert("Could not update password", error.message);
     setNewPassword(""); setConfirmPassword("");
     Alert.alert("Password updated", "Your password has been changed.");
-    await supabase.from("profiles").update({ must_change_password: false }).eq("id", session.user.id);
+    const { error: setupError } = await supabase.rpc("complete_password_setup");
+    if (setupError) {
+      Alert.alert("Password changed, setup not completed", setupError.message || "Please sign in to the website and complete account setup.");
+      return;
+    }
     const { data } = await supabase.from("profiles").select("*").eq("id", session.user.id).maybeSingle();
     if (data) setProfile(data);
   }
