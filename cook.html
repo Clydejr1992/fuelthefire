@@ -1,0 +1,41 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#123b32">
+<title>Cook Meal Reports | Fuel the Fire</title>
+<link rel="stylesheet" href="assets/app.css?v=cook-report-draft1">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="assets/config.js"></script>
+<style>
+.cook-wrap{max-width:1000px;margin:0 auto;padding:24px}.cook-card{background:#fff;border:1px solid #e2e8e5;border-radius:16px;padding:20px;margin:16px 0}.cook-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:14px}.cook-grid label,.cook-card label{display:block;font-weight:600;margin:8px 0 5px}.cook-grid input,.cook-grid select,.cook-grid textarea,.cook-card input,.cook-card select{width:100%;padding:10px;border:1px solid #cbd5d1;border-radius:8px}.cook-table{width:100%;border-collapse:collapse}.cook-table th,.cook-table td{padding:10px;border-bottom:1px solid #e5e7eb;text-align:left}.cook-table input{min-width:80px}.cook-message{padding:10px 0}.cook-muted{color:#64748b}.cook-head{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}.cook-actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:14px}.cook-alert{background:#fff7ed;border:1px solid #fed7aa;border-radius:10px;padding:12px;color:#9a3412}@media(max-width:600px){.cook-wrap{padding:12px}.cook-table{font-size:13px}.cook-table th,.cook-table td{padding:6px}}
+</style>
+</head>
+<body>
+<main class="cook-wrap">
+<header class="cook-head">
+<div><p class="eyebrow">LINCOLN COUNTY • FOOD SERVICE</p><h1>Cook Meal Reports</h1><p id="cook-identity" class="cook-muted">Checking your account…</p></div>
+<button id="cook-signout" class="secondary" type="button">Sign out</button>
+</header>
+<div id="cook-message" class="cook-message" role="status"></div>
+<div id="cook-security-note" class="cook-alert">Cook access is restricted by the database. Reports do not change inventory balances.</div>
+<section class="cook-card">
+<h2>New meal report</h2>
+<div class="cook-grid">
+<div><label for="cook-school">Assigned school *</label><select id="cook-school" required><option value="">Loading assigned schools…</option></select></div>
+<div><label for="cook-date">Service date *</label><input id="cook-date" type="date" required></div>
+<div><label for="cook-program">Meal program *</label><select id="cook-program" required><option value="">Choose program</option><option>Breakfast</option><option>Lunch</option><option>Supper</option><option>Snack</option><option>Other</option></select></div>
+<div><label for="cook-notes">Report notes</label><input id="cook-notes" maxlength="1000" placeholder="Optional notes"></div>
+</div>
+</section>
+<section class="cook-card">
+<div class="cook-head"><div><h2>Food items</h2><p class="cook-muted">Enter quantities for each food item. Save a draft as you work. Submitted reports are locked until an administrator returns them for correction.</p></div><button id="cook-add-item" class="secondary" type="button">+ Add food item</button></div>
+<div style="overflow-x:auto"><table class="cook-table"><thead><tr><th>Food item</th><th>Category</th><th>Offered</th><th>Reused</th><th>Waste</th><th>Unit</th><th></th></tr></thead><tbody id="cook-items"><tr class="cook-empty"><td colspan="7">Add the food items served for this meal.</td></tr></tbody></table></div>
+<div class="cook-actions"><button id="cook-save-draft" class="primary" type="button">Save draft</button><button id="cook-submit" class="secondary" type="button" disabled>Submit report</button><button id="cook-new-report" class="secondary" type="button">New report</button></div>
+<p id="cook-save-note" class="cook-muted">Drafts are saved under your account. Submitting sends the report to an administrator for review.</p>
+</section>
+<section class="cook-card"><h2>My recent reports</h2><p class="cook-muted">Your drafts, submitted reports, returned reports, and approved reports.</p><div id="cook-reports">Loading reports…</div></section>
+</main>
+<script src="assets/cook.js?v=cook-report-draft1"></script>
+</body></html>
