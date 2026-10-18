@@ -90,7 +90,7 @@ async function saveDraft(){
  try{
   const school_id=$("#cook-school").value,service_date=$("#cook-date").value,meal_program=$("#cook-program").value,notes=$("#cook-notes").value.trim(),items=itemRows();
   if(!school_id||!service_date||!meal_program)throw Error("Choose an assigned school, service date, and meal program before saving.");
-  if(!/^\\d{4}-\\d{2}-\\d{2}$/.test(service_date))throw Error("The service date is invalid. Please choose the date again.");
+  if(!/^\d{4}-\d{2}-\d{2}$/.test(service_date))throw Error("The service date is invalid. Please choose the date again.");
   if(service_date>localDateISO())throw Error("The service date cannot be in the future.");
   if(!items.length)throw Error("Add at least one food item.");
   if(items.some(x=>!x.item_name||![x.quantity_offered,x.quantity_reused,x.quantity_wasted].every(n=>Number.isFinite(n)&&n>=0)))throw Error("Every item needs a name and non-negative quantities.");
