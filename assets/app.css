@@ -109,12 +109,21 @@ tbody tr:last-child td{border-bottom:0}tbody tr:hover{background:#f8fbf8}
 /* Print only the selected employee inventory or products/list report. */
 @media print {
  body.printing-selected-section * { visibility:hidden!important; }
+ body.printing-selected-section #current-stock-print,
+ body.printing-selected-section #current-stock-print *,
+ body.printing-selected-section #purchasing-receiving-print,
+ body.printing-selected-section #purchasing-receiving-print *,
+ body.printing-selected-section #current-assignments-print,
+ body.printing-selected-section #current-assignments-print *,
  body.printing-selected-section #employee-inventory-print,
  body.printing-selected-section #employee-inventory-print *,
  body.printing-selected-section #products-list-print,
  body.printing-selected-section #products-list-print *,
  body.printing-selected-section #reports-history-print,
  body.printing-selected-section #reports-history-print * { visibility:visible!important; }
+ body.printing-selected-section #current-stock-print,
+ body.printing-selected-section #purchasing-receiving-print,
+ body.printing-selected-section #current-assignments-print,
  body.printing-selected-section #employee-inventory-print,
  body.printing-selected-section #products-list-print,
  body.printing-selected-section #reports-history-print { position:absolute!important; left:0!important; top:0!important; width:100%!important; margin:0!important; padding:0!important; border:0!important; box-shadow:none!important; background:#fff!important; color:#000!important; }
