@@ -95,7 +95,7 @@ async function cookAssignmentsPage(){
  };
 }
 function employeesPage(){
- const eligible=e=>e.role!=="cook"&&e.role!=="admin";
+ const eligible=e=>e.role!=="admin";
  $("#page-content").innerHTML='<div class="panel"><div class="panel-head"><div><h2>Employee accounts</h2><p class="small">Manage employee and manager account access.</p></div><button id="newemp" class="primary">+ Create employee</button></div>'+table(["Employee","Employee #","Department","Role","Status","Password setup","Account actions"],employees.map(e=>['<strong>'+esc(e.full_name||"Unnamed")+'</strong><div class="subtle">'+esc(e.email||"")+"</div>",esc(e.employee_number||"—"),esc(e.department||"—"),esc(e.role),'<span class="pill '+(e.active?"":"out")+'" data-account-status="'+esc(e.id)+'">'+(e.active?"Active":"Inactive")+"</span>",e.must_change_password?"Must change":"Set up",eligible(e)?'<div class="inline-actions"><button type="button" class="secondary account-toggle" data-id="'+esc(e.id)+'" data-active="'+(e.active?"1":"0")+'">'+(e.active?"Deactivate":"Activate")+'</button> <button type="button" class="secondary account-delete" data-id="'+esc(e.id)+'">Delete</button></div>':(e.role==="cook"?"Cook account controls are restricted":"Administrator account protected")]))+'</div>';
  $("#newemp").onclick=employeeModal;
  $("#page-content").querySelectorAll(".account-toggle").forEach(b=>b.onclick=async()=>{
