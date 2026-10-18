@@ -39,6 +39,7 @@ async function render(){
    const tr=trs.find(row=>row.textContent.includes(employee.email||"\u0000"));
    if(!tr)return;
    const td=document.createElement("td");td.dataset.employeeActionsCell="1";
+   if(employee.role==="cook"||employee.role==="admin"){td.textContent=employee.role==="cook"?"Manage school access under Cook School Assignments":"Administrator account protected";tr.appendChild(td);return;}
    td.innerHTML='<div class="inline-actions"><button type="button" class="secondary" data-act="toggle" data-id="'+esc(employee.id)+'" data-active="'+(employee.active?"1":"0")+'">'+(employee.active?"Deactivate":"Activate")+'</button> <button type="button" class="secondary" data-act="delete" data-id="'+esc(employee.id)+'">Delete</button></div>';
    tr.appendChild(td);
   });
