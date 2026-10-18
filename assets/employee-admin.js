@@ -28,7 +28,7 @@ async function render(){
   // Clean up duplicates left by older cached versions of this script.
   [...head.children].filter(th=>th.textContent.trim()==="Account actions").forEach(el=>el.remove());
   [...body.querySelectorAll("tr")].forEach(tr=>[...tr.children].filter(td=>td.dataset.employeeActionsCell==="1"||td.textContent.includes("Deactivate")&&td.textContent.includes("Delete")&&td.querySelector("button[data-act]")).forEach(td=>td.remove()));
-  const r=await db.from("profiles").select("id,full_name,email,role,active").neq("role","admin").order("full_name");
+  const r=await db.from("profiles").select("id,full_name,email,role,active").order("full_name");
   if(r.error)throw r.error;
   if($("#page-title")?.textContent!=="Employees"||root!==$("#page-content")||currentTable!==root.querySelector("table"))return;
   const employees=r.data||[];
@@ -39,7 +39,6 @@ async function render(){
    const tr=trs.find(row=>row.textContent.includes(employee.email||"\u0000"));
    if(!tr)return;
    const td=document.createElement("td");td.dataset.employeeActionsCell="1";
-   if(employee.role==="cook"||employee.role==="admin"){td.textContent=employee.role==="cook"?"Manage school access under Cook School Assignments":"Administrator account protected";tr.appendChild(td);return;}
    td.innerHTML='<div class="inline-actions"><button type="button" class="secondary" data-act="toggle" data-id="'+esc(employee.id)+'" data-active="'+(employee.active?"1":"0")+'">'+(employee.active?"Deactivate":"Activate")+'</button> <button type="button" class="secondary" data-act="delete" data-id="'+esc(employee.id)+'">Delete</button></div>';
    tr.appendChild(td);
   });
