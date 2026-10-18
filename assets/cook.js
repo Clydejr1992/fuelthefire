@@ -1,5 +1,5 @@
 (()=>{"use strict";
-const cfg=window.FUEL_THE_FIRE_CONFIG||{},$=s=>document.querySelector(s);
+const cfg=window.FUEL_THE_FIRE_CONFIG||{},$=s=>document.querySelector(s),localDateISO=()=>{const d=new Date();return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0")};
 if(!window.supabase||!cfg.SUPABASE_URL||!cfg.SUPABASE_ANON_KEY){location.replace("index.html");return}
 const db=window.supabase.createClient(cfg.SUPABASE_URL,cfg.SUPABASE_ANON_KEY);
 const say=(s,bad=false)=>{const e=$("#cook-message");e.textContent=s;e.style.color=bad?"#b91c1c":"#166534"};
@@ -12,7 +12,7 @@ async function init(){
  if(profile.role!=="cook"){say("This page is only for Cook accounts. Returning to the main app.",true);setTimeout(()=>location.replace("app.html"),900);return}
  $("#cook-identity").textContent=(profile.full_name||profile.email)+" • Cook";
  if(profile.must_change_password){say("Please finish password setup from the main app before using Cook reports.",true);location.replace("app.html");return}
- $("#cook-date").value=new Date().toLocaleDateString("en-CA");
+ $("#cook-date").value=localDateISO();
  $("#cook-add-item").onclick=addItem;$("#cook-scan-item").onclick=scanItemForReport;
  $("#cook-signout").onclick=async()=>{await db.auth.signOut();location.replace("index.html")};
  $("#cook-save-draft").onclick=saveDraft;$("#cook-submit").onclick=submitReport;
@@ -81,7 +81,7 @@ function addItem(item={}){
  $("#cook-items").appendChild(tr);
 }
 function resetForm(){
- editingId=null;$("#cook-school").value="";$("#cook-date").value=new Date().toLocaleDateString("en-CA");$("#cook-program").value="";$("#cook-notes").value="";
+ editingId=null;$("#cook-school").value="";$("#cook-date").value=localDateISO();$("#cook-program").value="";$("#cook-notes").value="";
  $("#cook-items").innerHTML='<tr class="cook-empty"><td colspan="7">Add the food items served for this meal.</td></tr>';addItem();
  $("#cook-save-draft").textContent="Save draft";$("#cook-submit").disabled=false;$("#cook-submit").textContent="Submit report";say("Ready for a new meal report.");
 }
@@ -89,7 +89,9 @@ async function saveDraft(){
  const b=$("#cook-save-draft");b.disabled=true;
  try{
   const school_id=$("#cook-school").value,service_date=$("#cook-date").value,meal_program=$("#cook-program").value,notes=$("#cook-notes").value.trim(),items=itemRows();
-  if(!school_id||!service_date||!meal_program)throw Error("Choose a school, service date, and meal program.");
+  if(!school_id||!service_date||!meal_program)throw Error("Choose an assigned school, service date, and meal program before saving.");
+  if(!/^\\d{4}-\\d{2}-\\d{2}$/.test(service_date))throw Error("The service date is invalid. Please choose the date again.");
+  if(service_date>localDateISO())throw Error("The service date cannot be in the future.");
   if(!items.length)throw Error("Add at least one food item.");
   if(items.some(x=>!x.item_name||![x.quantity_offered,x.quantity_reused,x.quantity_wasted].every(n=>Number.isFinite(n)&&n>=0)))throw Error("Every item needs a name and non-negative quantities.");
   const {data,error}=await db.rpc("cook_save_meal_report",{p_report_id:editingId,p_school_id:school_id,p_service_date:service_date,p_meal_program:meal_program,p_notes:notes,p_items:items});
