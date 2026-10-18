@@ -1,6 +1,6 @@
 (()=>{"use strict";
 const cfg=window.FUEL_THE_FIRE_CONFIG||{},$=s=>document.querySelector(s);
-const esc=v=>String(v??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;"," >":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const esc=v=>String(v??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
 const fmt=v=>Number(v||0).toLocaleString(undefined,{maximumFractionDigits:2});
 let busy=false;
 async function render(){
