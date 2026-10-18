@@ -36,7 +36,8 @@ async function render(){
   const th=document.createElement("th");th.dataset.employeeActionsHead="1";th.textContent="Account actions";head.appendChild(th);
   employees.forEach(employee=>{
    // Match the employee row by email instead of assuming database and UI ordering match.
-   const tr=trs.find(row=>row.textContent.includes(employee.email||"\u0000"));
+   const email=String(employee.email||"").trim().toLowerCase();
+   const tr=trs.find(row=>email && [...row.querySelectorAll("td")].some(cell=>cell.textContent.trim().toLowerCase().includes(email)));
    if(!tr){console.warn("Employee account row not found for",employee.email);return;}
    const td=document.createElement("td");td.dataset.employeeActionsCell="1";
    if(employee.role==="cook"||employee.role==="admin"){td.textContent=employee.role==="cook"?"Cook account controls are restricted":"Administrator account protected";tr.appendChild(td);return;}
@@ -47,6 +48,6 @@ async function render(){
   body.querySelectorAll('[data-act="delete"]').forEach(b=>b.onclick=async()=>{const name=b.closest("tr")?.querySelector("strong")?.textContent||"this employee";if(!confirm("Permanently delete "+name+"'s account? This cannot be undone."))return;b.disabled=true;try{const x=await db.functions.invoke("admin-manage-user",{body:{action:"delete",user_id:b.dataset.id}});if(x.error)throw x.error;if(x.data?.error)throw Error(x.data.error);setTimeout(()=>window.FuelEmployeeAdmin?.render(),0)}catch(e){alert(e.message||"Could not delete account.");b.disabled=false}});
  }catch(e){console.error("Fuel the Fire employee controls failed:",e);const message=$("#global-message");if(message){message.textContent="Account controls could not load: "+(e.message||"Unknown error");message.classList.add("show")}}finally{rendering=false}
 }
-function hook(){window.FuelEmployeeAdmin={render};if($("#page-title")?.textContent==="Employees")setTimeout(render,350)}
+function hook(){window.FuelEmployeeAdmin={render};document.addEventListener("click",e=>{if(e.target.closest("[data-page=employees]"))setTimeout(render,500)});if($("#page-title")?.textContent==="Employees")setTimeout(render,350)}
 if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",hook);else hook();
 })();
