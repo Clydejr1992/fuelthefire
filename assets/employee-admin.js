@@ -28,7 +28,7 @@ async function render(){
   // Clean up duplicates left by older cached versions of this script.
   [...head.children].filter(th=>th.textContent.trim()==="Account actions").forEach(el=>el.remove());
   [...body.querySelectorAll("tr")].forEach(tr=>[...tr.children].filter(td=>td.dataset.employeeActionsCell==="1"||td.textContent.includes("Deactivate")&&td.textContent.includes("Delete")&&td.querySelector("button[data-act]")).forEach(td=>td.remove()));
-  const r=await db.from("profiles").select("id,full_name,email,role,active").neq("role","admin").order("full_name");
+  const r=await db.from("profiles").select("id,full_name,email,role,active").in("role",["employee","manager"]).order("full_name");
   if(r.error)throw r.error;
   if($("#page-title")?.textContent!=="Employees"||root!==$("#page-content")||currentTable!==root.querySelector("table"))return;
   const employees=r.data||[];
