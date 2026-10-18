@@ -1,1 +1,18 @@
-{"name":"Fuel the Fire","short_name":"Fuel the Fire","start_url":"./index.html","display":"standalone","background_color":"#f4f7f4","theme_color":"#173f35","icons":[]}
+{
+  "name": "Fuel the Fire",
+  "short_name": "Fuel the Fire",
+  "description": "School food-service inventory and meal reporting.",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#f4f7f4",
+  "theme_color": "#173f35",
+  "icons": [
+    {
+      "src": "assets/fuel-the-fire-icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}
