@@ -1,0 +1,34 @@
+name: Validate Fuel the Fire mobile app
+
+on:
+  push:
+    branches: [app-development]
+    paths:
+      - "mobile-app/**"
+      - ".github/workflows/mobile-app-check.yml"
+  pull_request:
+    branches: [main, app-development]
+    paths:
+      - "mobile-app/**"
+      - ".github/workflows/mobile-app-check.yml"
+  workflow_dispatch:
+
+jobs:
+  expo-check:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: mobile-app
+    steps:
+      - name: Check out source
+        uses: actions/checkout@v4
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: mobile-app/package-lock.json
+      - name: Install dependencies
+        run: npm install
+      - name: Check Expo app configuration
+        run: npx expo config --type public
