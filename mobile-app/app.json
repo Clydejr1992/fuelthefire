@@ -1,0 +1,31 @@
+{
+  "expo": {
+    "name": "Fuel the Fire",
+    "slug": "fuel-the-fire",
+    "version": "1.0.0",
+    "orientation": "default",
+    "userInterfaceStyle": "automatic",
+    "scheme": "fuelthefire",
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "site.fuelthefire.app"
+    },
+    "android": {
+      "package": "site.fuelthefire.app",
+      "adaptiveIcon": {
+        "backgroundColor": "#123b32"
+      }
+    },
+    "web": {
+      "bundler": "metro"
+    },
+    "plugins": [
+      "react-native-webview"
+    ],
+    "extra": {
+      "eas": {
+        "projectId": "REPLACE_WITH_EAS_PROJECT_ID"
+      }
+    }
+  }
+}
