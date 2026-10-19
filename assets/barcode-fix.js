@@ -160,7 +160,8 @@ async function openScanner(button){
  }
 }
 document.addEventListener("click",e=>{
- const target=e.target instanceof Element?e.target:null,b=target?.closest("#pbscan,#pcbscan,#scannew,#mscan");if(!b)return;
+ const target=e.target instanceof Element?e.target:null,b=target?.closest("#pbscan,#scannew,#mscan");if(!b)return;
  e.preventDefault();e.stopImmediatePropagation();void openScanner(b);
 },true);
+window.ftfOpenCaseBarcodeScanner=function(event){if(event){event.preventDefault();event.stopPropagation();}const button=document.querySelector("#pcbscan");if(!button){showMessage("Case / box barcode Scan button is not available on this screen.",true);return;}void openScanner(button);};
 })();
