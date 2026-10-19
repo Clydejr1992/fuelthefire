@@ -7,7 +7,7 @@ const FIXED={"00":18,"01":14,"02":14,"11":6,"12":6,"13":6,"15":6,"16":6,"17":6,"
 const VARIABLE={"10":20,"21":20,"22":20,"30":8,"37":8,"240":30,"241":30,"250":30,"400":30,"401":30,"420":20};
 const AI_NAMES={"00":"SSCC","01":"GTIN","02":"Content GTIN","10":"Lot/batch","11":"Production date","12":"Due date","13":"Packaging date","15":"Best-before date","16":"Sell-by date","17":"Expiration date","20":"Product variant","21":"Serial number","22":"Consumer product variant","30":"Variable count","37":"Count","240":"Additional product ID","241":"Customer part number","250":"Secondary serial","400":"Customer order number","401":"Consignment number","410":"Ship-to GLN","414":"Physical location GLN","422":"Country of origin","7003":"Expiration date/time","8005":"Price per unit"};
 function dateValue(v){
- if(!/^\\d{6}$/.test(v||""))return "";
+ if(!/^\d{6}$/.test(v||""))return "";
  const yy=Number(v.slice(0,2)),m=Number(v.slice(2,4)),d=Number(v.slice(4,6)),y=yy>=50?1900+yy:2000+yy;
  if(m<1||m>12||d>31)return "";
  const day=d===0?new Date(y,m,0).getDate():d;
@@ -18,8 +18,8 @@ function dateValue(v){
 function put(out,ai,v){
  v=String(v||"").trim();if(!v)return;
  out.elements[ai]=v;
- if(ai==="01"&&/^\\d{14}$/.test(v))out.gtin=v;
- if(ai==="02"&&/^\\d{14}$/.test(v))out.contentGtin=v;
+ if(ai==="01"&&/^\d{14}$/.test(v))out.gtin=v;
+ if(ai==="02"&&/^\d{14}$/.test(v))out.contentGtin=v;
  if(ai==="10")out.lot=v;
  if(ai==="17")out.expiration=dateValue(v);
  if(ai==="15")out.bestBefore=dateValue(v);
@@ -29,15 +29,15 @@ function put(out,ai,v){
  if(ai==="30"||ai==="37")out.count=v;
 }
 function parseGS1(raw){
- let s=String(raw||"").replace(/^\\](?:d2|D2)/,"").replace(/\\u001d/g,GS).trim();
+ let s=String(raw||"").replace(/^\](?:d2|D2)/,"").replace(/\u001d/g,GS).trim();
  const out={elements:{},gtin:"",lot:"",expiration:"",production:"",serial:"",count:""};
  // GS1 Digital Link URI, for example /gtin/095.../lot/ABC/ser/123?exp=271231
- if(/^https?:\\/\\//i.test(s)){
-  try{const u=new URL(s);const p=u.pathname.match(/\\/gtin\\/(\\d{8,14})(?:\\/lot\\/([^/]+))?(?:\\/ser\\/([^/]+))?/i);if(p){out.gtin=p[1].padStart(14,"0");if(p[2])put(out,"10",decodeURIComponent(p[2]));if(p[3])put(out,"21",decodeURIComponent(p[3]));const exp=u.searchParams.get("exp");if(exp)put(out,"17",exp.replace(/-/g,"").slice(-6));return out;}}catch(_){}
+ if(/^https?:\/\//i.test(s)){
+  try{const u=new URL(s);const p=u.pathname.match(/\/gtin\/(\d{8,14})(?:\/lot\/([^/]+))?(?:\/ser\/([^/]+))?/i);if(p){out.gtin=p[1].padStart(14,"0");if(p[2])put(out,"10",decodeURIComponent(p[2]));if(p[3])put(out,"21",decodeURIComponent(p[3]));const exp=u.searchParams.get("exp");if(exp)put(out,"17",exp.replace(/-/g,"").slice(-6));return out;}}catch(_){}
  }
  // Human-readable AI text such as (01)GTIN(17)YYMMDD(10)LOT.
- if(/\\(\\d{2,4}\\)/.test(s)){
-  const re=/\\((\\d{2,4})\\)([^()]*)/g;let m;
+ if(/\(\d{2,4}\)/.test(s)){
+  const re=/\((\d{2,4})\)([^()]*)/g;let m;
   while((m=re.exec(s)))put(out,m[1],m[2].replace(new RegExp(GS,"g"),""));
   return out;
  }
@@ -72,9 +72,9 @@ async function loadZXing(){
  throw Error((lastError?.message||"Barcode decoder did not initialize.")+" Check the internet connection and reload.");
 }
 async function lookupProduct(gtin){
- const codes=[String(gtin||"")],noLeading=String(gtin||"").replace(/^0+(?=\\d)/,"");
+ const codes=[String(gtin||"")],noLeading=String(gtin||"").replace(/^0+(?=\d)/,"");
  if(noLeading&&noLeading!==gtin)codes.push(noLeading);
- if(/^0\\d{12}$/.test(gtin))codes.push(gtin.slice(1));
+ if(/^0\d{12}$/.test(gtin))codes.push(gtin.slice(1));
  for(const code of [...new Set(codes)]){
   for(const version of ["v3","v2"]){
    try{
@@ -93,14 +93,14 @@ function showMessage(text,error=false){const m=$("#global-message");if(m){m.text
 function appendNotes(lines){
  const el=$("#pnotes");if(!el||!lines.length)return;
  const current=el.value.trim(),tag="GS1 scan details:";
- const addition=tag+"\\n"+lines.join("\\n");
- if(!current.includes(tag))el.value=current?current+"\\n\\n"+addition:addition;
+ const addition=tag+"\n"+lines.join("\n");
+ if(!current.includes(tag))el.value=current?current+"\n\n"+addition:addition;
 }
 async function fillFromScan(raw,button){
  const clean=String(raw||"").trim(),gs1=parseGS1(clean);
- const plain=clean.replace(/^\\](?:E0|e0|C1|c1|d1|D1|d2|D2)/,"").trim();
+ const plain=clean.replace(/^\](?:E0|e0|C1|c1|d1|D1|d2|D2)/,"").trim();
  const looksGs1=!!(gs1.gtin||gs1.lot||gs1.expiration||gs1.production||gs1.serial||Object.keys(gs1.elements).length);
- const code=gs1.gtin||(/^\\d{8,14}$/.test(plain)?plain:(!looksGs1&&/^\\d+$/.test(plain)?plain:""));
+ const code=gs1.gtin||(/^\d{8,14}$/.test(plain)?plain:(!looksGs1&&/^\d+$/.test(plain)?plain:""));
  const details=Object.entries(gs1.elements).map(([ai,v])=>(AI_NAMES[ai]||("AI "+ai))+": "+v);
  if(gs1.serial)details.push("Serial number: "+gs1.serial);
  if(gs1.production)details.push("Production date: "+gs1.production);
@@ -110,7 +110,7 @@ async function fillFromScan(raw,button){
   if($("#pb")&&code)$("#pb").value=code;
   if(gs1.lot&&$("#plot"))$("#plot").value=gs1.lot;
   if(gs1.expiration&&$("#pexp"))$("#pexp").value=gs1.expiration;
-  appendNotes(details.filter(x=>!/^Lot\\/batch:|^Expiration date:/.test(x)));
+  appendNotes(details.filter(x=>!/^Lot\/batch:|^Expiration date:/.test(x)));
   if(code){
    showMessage("Barcode decoded. Checking for product details…");
    const p=await lookupProduct(code);
