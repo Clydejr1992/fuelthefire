@@ -18,9 +18,6 @@
     },
     "web": {
       "bundler": "metro"
-    },
-    "plugins": [
-      "react-native-webview"
-    ]
+    }
   }
 }
