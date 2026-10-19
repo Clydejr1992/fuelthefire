@@ -1,0 +1,50 @@
+name: Expo iOS test build
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - app-development
+    paths:
+      - "mobile-app/**"
+      - ".github/workflows/expo-ios-build.yml"
+
+jobs:
+  build-ios:
+    name: Build iOS preview with Expo EAS
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: mobile-app
+    steps:
+      - name: Check out development branch
+        uses: actions/checkout@v4
+        with:
+          ref: app-development
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: mobile-app/package-lock.json
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Check Expo configuration
+        run: npx expo config --type public
+
+      - name: Check Expo token
+        env:
+          EXPO_TOKEN: ${{ secrets.EAS_TOKEN }}
+        run: |
+          if [ -z "$EXPO_TOKEN" ]; then
+            echo "Missing GitHub Actions secret EAS_TOKEN."
+            exit 1
+          fi
+
+      - name: Start iOS cloud build
+        env:
+          EXPO_TOKEN: ${{ secrets.EAS_TOKEN }}
+        run: npx eas-cli@latest build --platform ios --profile preview --non-interactive
