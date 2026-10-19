@@ -125,7 +125,7 @@ async function fillFromScan(raw,button){
    appendNotes(["Raw barcode text: "+clean]);
   }
  }
- if(button.id==="pcbscan"){if($("#pcb")&&code)$("#pcb").value=code;showMessage(code?"Case barcode decoded.":"No GTIN/UPC/EAN number was found in that scan.",!code);if(!code)appendNotes(["Case barcode text: "+clean]);}
+ if(button.id==="pcbscan"){const caseCode=clean.replace(/^\](?:E0|e0|C1|c1|d1|D1|d2|D2)/,"").trim();if($("#pcb")&&caseCode)$("#pcb").value=caseCode;showMessage(caseCode?"Case / box barcode captured: "+caseCode:"No barcode text was returned by the scanner.",!caseCode);if(!caseCode)appendNotes(["Case barcode text: "+clean]);}
  if(button.id==="mscan"){
   const hint=$("#mh");if(hint)hint.textContent=`Scan read ${gs1.gtin?"GTIN "+gs1.gtin:code||clean}${gs1.lot?" • Lot "+gs1.lot:""}${gs1.expiration?" • Exp "+gs1.expiration:""}${gs1.serial?" • Serial "+gs1.serial:""}. Select the matching product and save the movement.`;
  }
