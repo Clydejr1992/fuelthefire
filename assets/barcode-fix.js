@@ -156,12 +156,16 @@ async function openScanner(button){
   await reader.decodeFromConstraints({video:{facingMode:{ideal:"environment"},width:{ideal:1920},height:{ideal:1080}},audio:false},video,callback);
   set("Camera ready. Hold the entire barcode steady, close enough for its small squares to be sharp. Allow camera access if asked.");
  }catch(e){
+  busy=false;
   set((e.message||"Camera could not start.")+" You can paste decoded GS1 text below. If camera permission was denied, allow it for this website and reload.");
+  showMessage("Scanner opened, but the camera/decoder could not start. See the message in the scanner window.",true);
  }
 }
 document.addEventListener("click",e=>{
- const target=e.target instanceof Element?e.target:null,b=target?.closest("#pbscan,#scannew,#mscan");if(!b)return;
- e.preventDefault();e.stopImmediatePropagation();void openScanner(b);
+ const target=e.target instanceof Element?e.target:null,b=target?.closest("#pbscan,#pcbscan,#scannew,#mscan");if(!b)return;
+ e.preventDefault();e.stopImmediatePropagation();
+ if(b.id==="pcbscan")showMessage("Opening case / box barcode scanner…");
+ void openScanner(b);
 },true);
 window.ftfOpenCaseBarcodeScanner=function(event){if(event){event.preventDefault();event.stopPropagation();}const button=document.querySelector("#pcbscan");if(!button){showMessage("Case / box barcode Scan button is not available on this screen.",true);return;}void openScanner(button);};
 })();
