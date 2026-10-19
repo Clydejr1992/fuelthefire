@@ -2,6 +2,12 @@ name: Expo Android test build
 
 on:
   workflow_dispatch:
+  push:
+    branches:
+      - app-development
+    paths:
+      - "mobile-app/**"
+      - ".github/workflows/expo-android-build.yml"
 
 permissions:
   contents: read
