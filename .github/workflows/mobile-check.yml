@@ -1,0 +1,29 @@
+name: Mobile app checks
+
+on:
+  pull_request:
+    paths:
+      - "mobile-app/**"
+      - ".github/workflows/mobile-check.yml"
+  push:
+    branches:
+      - "app/fuel-the-fire-expo"
+    paths:
+      - "mobile-app/**"
+      - ".github/workflows/mobile-check.yml"
+
+jobs:
+  expo-config:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: mobile-app
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - name: Install dependencies
+        run: npm install
+      - name: Validate Expo configuration
+        run: npx expo config --type public
